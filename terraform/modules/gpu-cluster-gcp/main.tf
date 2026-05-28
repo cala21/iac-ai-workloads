@@ -11,31 +11,60 @@ terraform {
   }
 }
 
-variable "cluster_name" { type = string }
+variable "cluster_name" {
+  type = string
+}
+
 variable "machine_type" {
   type    = string
-  default = "a2-highgpu-1g"  # 1x A100 40GB. For T4: "n1-standard-4" + accelerator
+  default = "a2-highgpu-1g" # 1x A100 40GB. For T4: "n1-standard-4" + accelerator below
 }
+
 variable "accelerator_type" {
   type    = string
   default = "nvidia-tesla-a100"
   # Options: nvidia-tesla-t4, nvidia-tesla-v100, nvidia-tesla-a100, nvidia-l4
 }
-variable "accelerator_count" { type = number; default = 1 }
-variable "min_replicas" { type = number; default = 0 }
-variable "max_replicas" { type = number; default = 4 }
+
+variable "accelerator_count" {
+  type    = number
+  default = 1
+}
+
+variable "min_replicas" {
+  type    = number
+  default = 0
+}
+
+variable "max_replicas" {
+  type    = number
+  default = 4
+}
+
 variable "region" {
   type    = string
-  default = "europe-west1"  # Belgium — closest EU region, strong data residency
-  # Alternatives: europe-west8 (Milan) — lower latency for Italian deployments
+  default = "europe-west1" # Belgium — broad service availability
+  # Use europe-west8 (Milan) for lowest latency to Italian deployments
 }
+
 variable "zone" {
   type    = string
   default = "europe-west1-b"
 }
-variable "project_id" { type = string }
-variable "network" { type = string; default = "default" }
-variable "subnetwork" { type = string; default = "default" }
+
+variable "project_id" {
+  type = string
+}
+
+variable "network" {
+  type    = string
+  default = "default"
+}
+
+variable "subnetwork" {
+  type    = string
+  default = "default"
+}
 
 resource "google_compute_instance_template" "gpu" {
   name_prefix  = "${var.cluster_name}-gpu-"
@@ -48,11 +77,6 @@ resource "google_compute_instance_template" "gpu" {
     boot         = true
     disk_size_gb = 100
     disk_type    = "pd-ssd"
-
-    disk_encryption_key {
-      # Use CMEK for GDPR compliance — control your own encryption keys
-      # kms_key_self_link = var.kms_key_self_link
-    }
   }
 
   guest_accelerator {
@@ -61,7 +85,7 @@ resource "google_compute_instance_template" "gpu" {
   }
 
   scheduling {
-    on_host_maintenance = "TERMINATE"  # Required for GPU instances
+    on_host_maintenance = "TERMINATE" # Required for GPU instances
     automatic_restart   = true
     preemptible         = false
     # Set preemptible = true for ~80% cost reduction in dev/training
@@ -70,7 +94,7 @@ resource "google_compute_instance_template" "gpu" {
   network_interface {
     network    = var.network
     subnetwork = var.subnetwork
-    # No access_config = no public IP (private cluster for compliance)
+    # No access_config block = no public IP (private cluster for compliance)
   }
 
   metadata = {
@@ -132,5 +156,10 @@ resource "google_compute_health_check" "gpu" {
   }
 }
 
-output "instance_group" { value = google_compute_region_instance_group_manager.gpu.instance_group }
-output "template_id" { value = google_compute_instance_template.gpu.id }
+output "instance_group" {
+  value = google_compute_region_instance_group_manager.gpu.instance_group
+}
+
+output "template_id" {
+  value = google_compute_instance_template.gpu.id
+}

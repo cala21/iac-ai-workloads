@@ -23,9 +23,11 @@ jobs:
         run: terraform fmt -check -recursive terraform/
       - name: Validate modules
         run: |
+          ROOT=$(pwd)
           for dir in terraform/modules/*/; do
             echo "Validating $dir"
-            cd $dir && terraform init -backend=false && terraform validate && cd -
+            cd "$ROOT/$dir" && terraform init -backend=false && terraform validate
+            cd "$ROOT"
           done
 
   plan:
