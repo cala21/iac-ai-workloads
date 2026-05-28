@@ -1,0 +1,4 @@
+aws_region  = "eu-west-1"
+vpc_id      = "vpc-xxxxxxxxxxxxxxxxx"
+subnet_ids  = ["subnet-xxxxxxxxxxxxxxxxx"]
+gpu_ami_id  = "ami-xxxxxxxxxxxxxxxxx"  # AWS Deep Learning AMI
