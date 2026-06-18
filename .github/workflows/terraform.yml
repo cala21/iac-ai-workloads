@@ -19,6 +19,7 @@ jobs:
       - uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: ${{ env.TF_VERSION }}
+          terraform_wrapper: false # wrapper masks non-zero exit codes from fmt/validate
       - name: Terraform Format Check
         run: terraform fmt -check -recursive terraform/
       - name: Validate modules
