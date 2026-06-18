@@ -4,7 +4,7 @@ variable "labels" {
 }
 
 variable "enable_confidential_compute" {
-  type    = bool
-  default = false
+  type        = bool
+  default     = false
   description = "Enable Confidential Computing for sensitive AI workloads (N2D only, no GPU support yet)"
 }
